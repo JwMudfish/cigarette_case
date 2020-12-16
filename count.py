@@ -15,8 +15,9 @@ import easyocr
 
 
 
-박스 면적 계산 후, 이상치 제거
-ocr 넣어봄 -> 뒤집힌 케이스는 잡아내기 어려움
+1. 박스 면적 계산 후, 이상치 제거 : 이상치는 어떻게 판단할 것인지?
+
+2. ocr 넣어봄 -> 뒤집힌 케이스는 잡아내기 어려움
 
 '''
 
@@ -81,6 +82,7 @@ image = cv2.imread('./image/main2.jpg')
 # s1 = int(WIDTH / 3)
 # s2 = int(s1 * 2)
 
+# 개수 카운트 해야하는 영역만 골라서 담기
 def in_line(x,y):
     x = x
     y = y
@@ -148,7 +150,6 @@ images_corr_2 = get_front_corr(split_normal_section()[1], num = 3)
 line = cv2.line(image, (1300,0), (WIDTH, HEIGHT), (0,255,0), 4)
 print(images_corr_1[0])
 print(calc_area(corr[1]))
-
 
 
 images = crop_image(image = image, boxes = images_corr_1, resize=(224,224))
