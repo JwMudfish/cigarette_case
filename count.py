@@ -118,7 +118,7 @@ def split_normal_section():
 def draw_box(frame, box):
     for i in box:
         cv2.rectangle(frame, (i[0],i[1]), (i[2], i[3]), (0,0,255), 2)
-        cv2.putText(frame, calc_area(i), (i[0], i[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
+        #cv2.putText(frame, calc_area(i), (i[0], i[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
 
     return frame
 
@@ -172,6 +172,10 @@ image = draw_box(image, corr)
 cv2.namedWindow('b_img', cv2.WINDOW_NORMAL)
 cv2.resizeWindow('b_img', 800,600)
 cv2.imshow('b_img', image)
+
+cv2.namedWindow('cc', cv2.WINDOW_NORMAL)
+cv2.resizeWindow('cc', 800,600)
+cv2.imshow('cc', concated_img)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
