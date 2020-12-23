@@ -204,7 +204,7 @@
 		</bndbox>
 	</object>
 	<object>
-		<name>ob1ject</name>
+		<name>object</name>
 		<pose>Unspecified</pose>
 		<truncated>0</truncated>
 		<difficult>0</difficult>
