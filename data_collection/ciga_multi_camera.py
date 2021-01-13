@@ -3,10 +3,6 @@
 coding by JW_Mudfish
 Version : 1.0 
 Last Updated 2020.12.15
-일반 담배용 카메라 2개 데이터 수집 툴
- - 자체 데이터 augmentation 기능 추가 (약하게만...)))
-
-
 '''
 
 import pandas as pd
@@ -21,10 +17,11 @@ import random
 # sudo apt install v4l-utils
 ###############################
 BRIGHTNESS = 10
-C_TYPE = 'normal'  # 'heat' 
-save_dir = './data_collection/saved_images'
-LEFT_CAMERA_NUM = 0
-RIGHT_CAMERA_NUM = 2
+C_TYPE = 'normal'  # 'heat'
+save_dir = './cls_seed_images'
+# LEFT_CAMERA_NUM = 0
+# RIGHT_CAMERA_NUM = 2
+LR_MODE = 'b'
 
 frame_width = int(1920)
 frame_height = int(1080)
@@ -111,12 +108,13 @@ def nothing(x):
 
 #active_cam = list(map(lambda x : x[-1], getDevicesList()))
 active_cam = getDevicesList()
-
+if len(active_cam) >= 3:
+    active_cam.remove('0')
 
 print(f'현재 활성화 되어있는 카메라는 {active_cam} 입니다.')
 
-frame0 = cv2.VideoCapture(LEFT_CAMERA_NUM)
-frame1 = cv2.VideoCapture(RIGHT_CAMERA_NUM)
+frame0 = cv2.VideoCapture(int(active_cam[0]))
+frame1 = cv2.VideoCapture(int(active_cam[1]))
 
 
 MJPG_CODEC = 1196444237.0 # MJPG
@@ -145,8 +143,17 @@ while True:
     frame0.set(cv2.CAP_PROP_BRIGHTNESS, BRIGHTNESS)
     frame1.set(cv2.CAP_PROP_BRIGHTNESS, BRIGHTNESS)
 
-    ret0, img0 = frame0.read()
-    ret1, img00 = frame1.read()
+    if LR_MODE == 'b':
+        ret0, img0 = frame0.read()
+        ret1, img00 = frame1.read()
+
+    else:
+        ret0, img00 = frame0.read()
+        ret1, img0 = frame1.read()
+
+
+    # ret0, img0 = frame0.read()
+    # ret1, img00 = frame1.read()
     
     blank_image_1 = np.zeros((150, frame_width, 3), np.uint8)
     blank_image_2 = np.zeros((150, frame_width, 3), np.uint8)
@@ -206,6 +213,12 @@ while True:
 
         image_capture(image = image_2, save_path = save_dir, c_type = C_TYPE, lr = 'right')
         auged_image_capture(image = image_2, save_path = save_dir, c_type = C_TYPE, lr = 'right')
+
+    elif ch == ord('l'):
+        if LR_MODE == 'b':
+            LR_MODE = 'a'
+        else:
+            LR_MODE = 'b'
 
 frame0.release()
 frame1.release()
