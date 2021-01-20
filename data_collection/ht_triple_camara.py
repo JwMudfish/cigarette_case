@@ -17,7 +17,7 @@ import random
 # sudo apt install v4l-utils
 ###############################
 BRIGHTNESS = 10
-C_TYPE = 'normal'  # 'heat'
+C_TYPE = 'heat'  # 'normal'
 save_dir = './saved_images'
 # LEFT_CAMERA_NUM = 0
 # RIGHT_CAMERA_NUM = 2
@@ -38,28 +38,14 @@ def aug_image(image):
     )
 
     transforms = Compose([
-            #Rotate(limit=30, p=0.5),
-            #Rotate(limit=180, p=0.5),
-            #RandomRotate90(p=1.0)
-            #Transpose(p=1.0)
-            # Resize(248,248, p=1),     # resize 후 크롭
-            # RandomCrop(224,224, p=1),  # 위에꺼랑 세트
-            
+
             OneOf([
-            RandomContrast(p=1, limit=(-0.5,2)),   # -0.5 ~ 2 까지가 현장과 가장 비슷함  -- RandomBrightnessContrast
-            RandomBrightness(p=1, limit=(-0.2,0.4)),
-            RandomGamma(p=1, gamma_limit=(80,200)),
+            RandomContrast(p=1, limit=(-0.5,1.5)),   # -0.5 ~ 2 까지가 현장과 가장 비슷함  -- RandomBrightnessContrast
+            RandomBrightness(p=1, limit=(-0.2,0.2)),
+            RandomGamma(p=1, gamma_limit=(80,150)),
             ], p=1),
-                
-            # OneOf([
-            #     Rotate(limit=30, p=0.3),
-            #     RandomRotate90(p=0.3),
-            #     VerticalFlip(p=0.3)
-            # ], p=0.3),
         
             MotionBlur(p=0.2),   # 움직일때 흔들리는 것 같은 이미지
-            #ShiftScaleRotate(shift_limit=0.001, scale_limit=0.1, rotate_limit=30, p=0.3, border_mode=1),
-            #Resize(224,224, p=1),
             ],
             p=1)
     return transforms(image=image)['image']
@@ -108,13 +94,14 @@ def nothing(x):
 
 #active_cam = list(map(lambda x : x[-1], getDevicesList()))
 active_cam = getDevicesList()
-if len(active_cam) >= 3:
-    active_cam.remove('0')
+# if len(active_cam) >= 3:
+#     active_cam.remove('0')
 
 print(f'현재 활성화 되어있는 카메라는 {active_cam} 입니다.')
 
 frame0 = cv2.VideoCapture(int(active_cam[0]))
 frame1 = cv2.VideoCapture(int(active_cam[1]))
+frame2 = cv2.VideoCapture(int(active_cam[2]))
 
 MJPG_CODEC = 1196444237.0 # MJPG
 
@@ -133,6 +120,13 @@ frame1.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
 frame1.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
 frame1.set(cv2.CAP_PROP_AUTOFOCUS, 0)
 
+frame2.set(cv2.CAP_PROP_BRIGHTNESS, BRIGHTNESS) 
+frame2.set(cv2.CAP_PROP_FOURCC, MJPG_CODEC)
+frame2.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
+frame2.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
+frame2.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+
+
 cv2.createTrackbar('Brightness','Interminds Train Image Collection Program by JW', 100, 200, nothing)
 
 
@@ -140,47 +134,76 @@ while True:
 
     frame0.set(cv2.CAP_PROP_BRIGHTNESS, BRIGHTNESS)
     frame1.set(cv2.CAP_PROP_BRIGHTNESS, BRIGHTNESS)
+    frame2.set(cv2.CAP_PROP_BRIGHTNESS, BRIGHTNESS)
 
-    if LR_MODE == 'b':
-        ret0, img0 = frame0.read()
-        ret1, img00 = frame1.read()
+    ### if LR_MODE == 'b': 
+    #     ret0, img0 = frame0.read()
+    #     ret1, img00 = frame1.read()
 
-    else:
-        ret0, img00 = frame0.read()
-        ret1, img0 = frame1.read()
+    # else:
+    #     ret0, img00 = frame0.read()
+    #     ret1, img0 = frame1.read()
 
 
-    # ret0, img0 = frame0.read()
-    # ret1, img00 = frame1.read()
-    
+    ret0, img0 = frame0.read()
+    ret1, img00 = frame1.read()
+    ret2, img000 = frame2.read()
+
     blank_image_1 = np.zeros((150, frame_width, 3), np.uint8)
     blank_image_2 = np.zeros((150, frame_width, 3), np.uint8)
 
     img1 = cv2.resize(img0,(1920,1080))
     img2 = cv2.resize(img00,(1920,1080))
+    img3 = cv2.resize(img000,(1920,1080))
 
     concated_img1 = cv2.vconcat([blank_image_1, img1])
     concated_img2 = cv2.vconcat([blank_image_2, img2])
     
-    rst = cv2.hconcat([concated_img1, concated_img2])
-    blank_image_down = np.zeros((505, rst.shape[1], 3), np.uint8)
-
+    blank_image_3 = np.zeros((frame_height, frame_width, 3), np.uint8)
     folder_text_size = -60
     h = 100
     for i in file_count(save_dir):
         
-        cv2.putText(blank_image_down, f'{i[0]} : {i[1]} /', (folder_text_size + 70, h), cv2.FONT_HERSHEY_DUPLEX, 1, (255,255,255), 1, cv2.LINE_AA)    
+        cv2.putText(blank_image_3, f'{i[0]} : {i[1]} /', (folder_text_size + 70, h), cv2.FONT_HERSHEY_DUPLEX, 1.5, (255,255,255), 2, cv2.LINE_AA)    
         folder_len = cv2.getTextSize(text=str(f'{i[0]} : {i[1]} / '), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1, thickness=2)[0][0]
         folder_text_size = folder_len + folder_text_size
         
-        if folder_text_size >= rst.shape[1] - 800:
+        if folder_text_size >= blank_image_3.shape[1] - 800:
             h = h + 50
             folder_text_size = -60
 
 
-    cv2.putText(blank_image_down, 'Brightness : {}'.format(BRIGHTNESS), (10, 50), cv2.FONT_HERSHEY_COMPLEX, 1.5, (0,255,0), 2, cv2.LINE_AA)
+    cv2.putText(blank_image_3, 'Brightness : {}'.format(BRIGHTNESS), (10, 50), cv2.FONT_HERSHEY_COMPLEX, 1.5, (0,255,0), 2, cv2.LINE_AA)
 
-    rst = cv2.vconcat([rst, blank_image_down])
+
+
+    concated_image3 = cv2.hconcat([img3, blank_image_3])
+
+    
+    rst = cv2.hconcat([concated_img1, concated_img2])
+    blank_image_mid = np.ones((50, rst.shape[1], 3), np.uint8)
+    rst = cv2.vconcat([rst, blank_image_mid])
+    rst = cv2.vconcat([rst, concated_image3])
+
+
+    #blank_image_down = np.zeros((100, rst.shape[1], 3), np.uint8)
+
+    # folder_text_size = -60
+    # h = 100
+    # for i in file_count(save_dir):
+        
+    #     cv2.putText(blank_image_down, f'{i[0]} : {i[1]} /', (folder_text_size + 70, h), cv2.FONT_HERSHEY_DUPLEX, 1, (255,255,255), 1, cv2.LINE_AA)    
+    #     folder_len = cv2.getTextSize(text=str(f'{i[0]} : {i[1]} / '), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1, thickness=2)[0][0]
+    #     folder_text_size = folder_len + folder_text_size
+        
+    #     if folder_text_size >= rst.shape[1] - 800:
+    #         h = h + 50
+    #         folder_text_size = -60
+
+
+    # cv2.putText(blank_image_down, 'Brightness : {}'.format(BRIGHTNESS), (10, 50), cv2.FONT_HERSHEY_COMPLEX, 1.5, (0,255,0), 2, cv2.LINE_AA)
+
+    #rst = cv2.vconcat([rst, blank_image_down])
 
     BRIGHTNESS = cv2.getTrackbarPos('Brightness', 'Interminds Train Image Collection Program by JW') - 100
 
@@ -205,12 +228,17 @@ while True:
     elif ch == ord('c'):
         image_1 = img1
         image_2 = img2
+        image_3 = img3
 
         image_capture(image = image_1, save_path = save_dir, c_type = C_TYPE, lr = 'left')
         auged_image_capture(image = image_1, save_path = save_dir, c_type = C_TYPE, lr = 'left')
 
-        image_capture(image = image_2, save_path = save_dir, c_type = C_TYPE, lr = 'right')
+        image_capture(image = image_2, save_path = save_dir, c_type = C_TYPE, lr = 'center')
+        auged_image_capture(image = image_2, save_path = save_dir, c_type = C_TYPE, lr = 'center')
+
+        image_capture(image = image_3, save_path = save_dir, c_type = C_TYPE, lr = 'right')
         auged_image_capture(image = image_2, save_path = save_dir, c_type = C_TYPE, lr = 'right')
+
 
     elif ch == ord('l'):
         if LR_MODE == 'b':

@@ -1,0 +1,5 @@
+classes = 1
+train = /data/backup/pervinco_2020/darknet/build/darknet/x64/data/obj/cigarette_case/augmentations/aug_train.txt
+valid = /data/backup/pervinco_2020/darknet/build/darknet/x64/data/obj/cigarette_case/augmentations/aug_test.txt
+names = /home/perth/Desktop/personal_project/1.ciga_detection/object_detection/files/cigar_box_obj.names
+backup = /data/backup/pervinco_2020/darknet/weights/cigar_box_aug_2020.12.30
