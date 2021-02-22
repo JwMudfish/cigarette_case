@@ -2,6 +2,10 @@ from box_utils import BoxUtils
 import os
 import cv2
 import easyocr
+from ctypes import *
+import random
+from tst import ImageInfer
+
 
 '''
 <카운트로직>
@@ -69,18 +73,6 @@ def crop_image(image, boxes, save_path=None, labels=None, resize=None):
         return images
 
 
-corr = BoxUtils.get_boxes('./xml')['1']
-print('총 박스 수 : ',len(corr))
-
-WIDTH = 1920
-HEIGHT = 1080
-
-image = cv2.imread('./image/main2.jpg')
-
-# 카메라 각도에 따라서 section 수 자동으로 배정하는 로직은 하드웨어 나오고 짜야함
-# s1 = int(WIDTH / 3)
-# s2 = int(s1 * 2)
-
 # 개수 카운트 해야하는 영역만 골라서 담기
 def in_line(x,y):
     x = x
@@ -88,7 +80,7 @@ def in_line(x,y):
     x1, x2 = x, WIDTH
     y1, y2 = y, y+1
 
-    pt1 = 1300, 0
+    pt1 = PNT, 0
     pt2 = WIDTH, HEIGHT
 
     imgRect = (x,y,x2-x1, y2-y1)
@@ -132,6 +124,29 @@ def use_ocr(image):
     result = reader.readtext(image)
     return result
 
+##########################################################################################################
+
+IMAGE_PATH = './image/main6.jpg'
+THRESH_HOLD = .7
+
+WIDTH = 960
+HEIGHT = 960
+PNT = 620
+
+
+inf = ImageInfer(weight_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/yolov4-custom_cigar_box_last.weights",
+                config_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/yolov4-custom_cigar_box.cfg",
+                data_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/cigar_box_obj.data",
+                thresh_hold = THRESH_HOLD,
+                image_path = IMAGE_PATH)
+
+corr = inf.get_corr()
+
+print('총 박스 수 : ',len(corr))
+
+image = cv2.imread(image_path)
+image = cv2.resize(image, (WIDTH, HEIGHT))
+
 
 print('section_1 담배 수 : ', len(split_normal_section()[0]))
 #print(get_front_corr(section_1, num=3))
@@ -146,9 +161,9 @@ images_corr_2 = get_front_corr(split_normal_section()[1], num = 3)
 #cv2.rectangle(image, (s2,0), (s2+1, HEIGHT), (0,0,255), 2)
 
 
-line = cv2.line(image, (1300,0), (WIDTH, HEIGHT), (0,255,0), 4)
-print(images_corr_1[0])
-print(calc_area(corr[1]))
+line = cv2.line(image, (PNT,0), (WIDTH, HEIGHT), (0,255,0), 4)
+print(images_corr_1)
+#print(calc_area(corr[1]))
 
 
 images = crop_image(image = image, boxes = images_corr_1, resize=(224,224))
@@ -164,9 +179,6 @@ concated_img = cv2.hconcat([sec_1_img, sec_2_img])
 # 박스 그리기
 image = draw_box(image, corr)
 
-
-#cv2.imshow('img', concated_img)
-#cv2.imshow('img', images_1[2])
 
 cv2.namedWindow('b_img', cv2.WINDOW_NORMAL)
 cv2.resizeWindow('b_img', 800,600)
