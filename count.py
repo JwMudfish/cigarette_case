@@ -74,37 +74,64 @@ def crop_image(image, boxes, save_path=None, labels=None, resize=None):
 
 
 # 개수 카운트 해야하는 영역만 골라서 담기
-def in_line(x,y):
-    x = x
-    y = y
-    x1, x2 = x, WIDTH
-    y1, y2 = y, y+1
+def in_line(x,y,lr):
+    # x = x
+    # y = y
+    if lr == 'left':
+        x1, x2 = x, WIDTH
+        y1, y2 = y, y+1
 
-    pt1 = PNT, 0
-    pt2 = WIDTH, HEIGHT
+        pt1 = R_PNT, 0
+        pt2 = WIDTH, HEIGHT
 
-    imgRect = (x,y,x2-x1, y2-y1)
-    retval, rpt1, rpt2 = cv2.clipLine(imgRect, pt1, pt2)
+        imgRect = (x,y,x2-x1, y2-y1)
+        retval, rpt1, rpt2 = cv2.clipLine(imgRect, pt1, pt2)
+
+    elif lr == 'right':
+        x1, x2 = 0, x
+        y1, y2 = y, y+1
+
+        pt1 = L_PNT, 0
+        pt2 = 0, HEIGHT
+
+        imgRect = (x,y,x2-x1, y2-y1)
+        retval, rpt1, rpt2 = cv2.clipLine(imgRect, pt1, pt2)
+
     return retval
 
 
-def split_normal_section():
+def split_normal_section(lr):
 
     s1 = int(WIDTH // 2)
-    s2 = int((WIDTH + s1) / 2.1)
 
     section_1 = []
     section_2 = []
 
     for i in corr:
-        rst = center_point(i, xy='x')
-        if rst >= 0 and rst < s1:
-            section_1.append(i)
-        else:
-            tf = in_line(x =rst, y = center_point(i, xy='y'))
-            if tf == True:
+        x_corr = center_point(i, xy = 'x')
+        y_corr = center_point(i, xy = 'y')
+        
+        if lr == 'left':
+            if x_corr >= 0 and x_corr < s1:
+                section_1.append(i)
+            else:
+                tf = in_line(x = x_corr, y = y_corr, lr = CAM)
+                if tf == True:
+                    section_2.append(i)
+
+        elif lr == 'right':
+            #if x_corr <= WIDTH and x_corr > s1:
+            if x_corr > s1:
                 section_2.append(i)
+            else:
+                tf = in_line(x = x_corr, y = y_corr, lr = CAM)  # right
+                if tf == False:
+                    section_1.append(i)
+
+        elif lr == 'center':  # 히츠 중앙카메라일 경우 로직 추가해야 함
+            pass
     return section_1, section_2
+   
 
 def draw_box(frame, box):
     for i in box:
@@ -126,13 +153,18 @@ def use_ocr(image):
 
 ##########################################################################################################
 
-IMAGE_PATH = './image/main6.jpg'
+IMAGE_PATH = './image/main5.jpg'
+CAM = 'left'
+
 THRESH_HOLD = .7
 
 WIDTH = 960
 HEIGHT = 960
-PNT = 620
+R_PNT = 620
+L_PNT = 380
 
+
+##################################################################################################
 
 inf = ImageInfer(weight_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/yolov4-custom_cigar_box_last.weights",
                 config_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/yolov4-custom_cigar_box.cfg",
@@ -144,24 +176,29 @@ corr = inf.get_corr()
 
 print('총 박스 수 : ',len(corr))
 
-image = cv2.imread(image_path)
+image = cv2.imread(IMAGE_PATH)
 image = cv2.resize(image, (WIDTH, HEIGHT))
 
 
-print('section_1 담배 수 : ', len(split_normal_section()[0]))
+print('section_1 담배 수 : ', len(split_normal_section(lr = CAM)[0]))
 #print(get_front_corr(section_1, num=3))
 
-print('section_2 담배 수 : ', len(split_normal_section()[1]))
+print('section_2 담배 수 : ', len(split_normal_section(lr = CAM)[1]))
 #print(get_front_corr(section_2, num=3))
 
-images_corr_1 = get_front_corr(split_normal_section()[0], num = 3)
-images_corr_2 = get_front_corr(split_normal_section()[1], num = 3)
+images_corr_1 = get_front_corr(split_normal_section(lr = CAM)[0], num = 3)
+images_corr_2 = get_front_corr(split_normal_section(lr = CAM)[1], num = 3)
 
 #cv2.rectangle(image, (s1,0), (s1+1, HEIGHT), (0,0,255), 2)
 #cv2.rectangle(image, (s2,0), (s2+1, HEIGHT), (0,0,255), 2)
 
 
-line = cv2.line(image, (PNT,0), (WIDTH, HEIGHT), (0,255,0), 4)
+####################  Painting Section  ###################################
+if CAM == 'left':
+    line = cv2.line(image, (R_PNT,0), (WIDTH, HEIGHT), (0,255,0), 4)
+
+elif CAM == 'right':
+    line = cv2.line(image, (L_PNT,0), (0, HEIGHT), (0,255,0), 4)
 print(images_corr_1)
 #print(calc_area(corr[1]))
 
