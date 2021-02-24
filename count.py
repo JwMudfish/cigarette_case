@@ -1,4 +1,4 @@
-from box_utils import BoxUtils
+#from box_utils import BoxUtils
 import os
 import cv2
 import easyocr
@@ -17,10 +17,9 @@ from tst import ImageInfer
    - 중앙
    - 오른쪽
 
-
 1. 박스 면적 계산 후, 이상치 제거 : 이상치는 어떻게 판단할 것인지?
-
 2. ocr 넣어봄 -> 뒤집힌 케이스는 잡아내기 어려움
+
 
 '''
 
@@ -153,6 +152,7 @@ def use_ocr(image):
 
 ##########################################################################################################
 
+# 이미지 파일 형식은 floor_lcr
 IMAGE_PATH = './image/main5.jpg'
 CAM = 'left'
 
@@ -179,12 +179,14 @@ print('총 박스 수 : ',len(corr))
 image = cv2.imread(IMAGE_PATH)
 image = cv2.resize(image, (WIDTH, HEIGHT))
 
+section_1 = split_normal_section(lr = CAM)[0]
+section_2 = split_normal_section(lr = CAM)[1]
 
 print('section_1 담배 수 : ', len(split_normal_section(lr = CAM)[0]))
-#print(get_front_corr(section_1, num=3))
+print(get_front_corr(section_1, num=3))
 
 print('section_2 담배 수 : ', len(split_normal_section(lr = CAM)[1]))
-#print(get_front_corr(section_2, num=3))
+print(get_front_corr(section_2, num=3))
 
 images_corr_1 = get_front_corr(split_normal_section(lr = CAM)[0], num = 3)
 images_corr_2 = get_front_corr(split_normal_section(lr = CAM)[1], num = 3)
@@ -199,31 +201,32 @@ if CAM == 'left':
 
 elif CAM == 'right':
     line = cv2.line(image, (L_PNT,0), (0, HEIGHT), (0,255,0), 4)
-print(images_corr_1)
+
+# print(images_corr_1)
 #print(calc_area(corr[1]))
 
 
-images = crop_image(image = image, boxes = images_corr_1, resize=(224,224))
-images_1 = crop_image(image = image, boxes = images_corr_1, resize=(224,224))
-sec_1_img = cv2.vconcat([images[0], images[1], images[2]])
+# images = crop_image(image = image, boxes = images_corr_1, resize=(224,224))
+# images_1 = crop_image(image = image, boxes = images_corr_1, resize=(224,224))
+# sec_1_img = cv2.vconcat([images[0], images[1], images[2]])
 
-images = crop_image(image = image, boxes = images_corr_2, resize=(224,224))
-sec_2_img = cv2.vconcat([images[0], images[1], images[2]])
+# images = crop_image(image = image, boxes = images_corr_2, resize=(224,224))
+# sec_2_img = cv2.vconcat([images[0], images[1], images[2]])
 
 
-concated_img = cv2.hconcat([sec_1_img, sec_2_img])
+# concated_img = cv2.hconcat([sec_1_img, sec_2_img])
 
 # 박스 그리기
 image = draw_box(image, corr)
 
 
 cv2.namedWindow('b_img', cv2.WINDOW_NORMAL)
-cv2.resizeWindow('b_img', 800,600)
+cv2.resizeWindow('b_img', 960,960)
 cv2.imshow('b_img', image)
 
-cv2.namedWindow('cc', cv2.WINDOW_NORMAL)
-cv2.resizeWindow('cc', 800,600)
-cv2.imshow('cc', concated_img)
+# cv2.namedWindow('cc', cv2.WINDOW_NORMAL)
+# cv2.resizeWindow('cc', 800,600)
+# cv2.imshow('cc', concated_img)
 
 cv2.waitKey(0)
 cv2.destroyAllWindows()
