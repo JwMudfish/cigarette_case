@@ -8,6 +8,7 @@ import argparse
 from threading import Thread, enumerate
 from queue import Queue
 import datetime
+from glob import glob
 
 '''
 2021.02.21
@@ -57,6 +58,31 @@ class ImageInfer():
 
         return voc
 
+    def get_multi_corr(self, image_folder):
+        network, class_names, class_colors = darknet.load_network(self.config_file, self.data_file, self.weight_file, batch_size=1)
+        width = darknet.network_width(network)
+        height = darknet.network_height(network)
+        darknet_image = darknet.make_image(width, height, 3)
+
+        infer_images = glob(os.path.join(image_folder, '*.jpg'))
+        print(infer_images)
+        voc_rst = []
+        for img in infer_images:
+            frame = cv2.imread(img)
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame_resized = cv2.resize(frame_rgb, (width, height), interpolation=cv2.INTER_LINEAR)
+            darknet.copy_image_from_bytes(darknet_image, frame_resized.tobytes())
+
+            detections = darknet.detect_image(network, class_names, darknet_image, thresh=self.thresh_hold, hier_thresh=.5, nms=.45)
+
+            voc = []
+            for label, prob, corr in detections:
+                i = self.bbox2points(corr)
+                voc.append(i)
+            
+            voc_rst.append({'image_name' : img, 'corr' : voc})
+        return voc_rst
+
 
 # inf = ImageInfer(weight_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/yolov4-custom_cigar_box_last.weights",
 #                 config_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/yolov4-custom_cigar_box.cfg",
@@ -64,7 +90,7 @@ class ImageInfer():
 #                 thresh_hold = .7,
 #                 image_path = './image/main6.jpg')
 
-# rst = inf.get_corr()
+# rst = inf.get_multi_corr('./image')
 
 # print(rst)
 

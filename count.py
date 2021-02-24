@@ -5,7 +5,7 @@ import easyocr
 from ctypes import *
 import random
 from tst import ImageInfer
-
+import pprint
 
 '''
 <카운트로직>
@@ -87,7 +87,7 @@ def in_line(x,y,lr):
         retval, rpt1, rpt2 = cv2.clipLine(imgRect, pt1, pt2)
 
     elif lr == 'right':
-        x1, x2 = 0, x
+        x1, x2 = x, WIDTH
         y1, y2 = y, y+1
 
         pt1 = L_PNT, 0
@@ -153,7 +153,7 @@ def use_ocr(image):
 ##########################################################################################################
 
 # 이미지 파일 형식은 floor_lcr
-IMAGE_PATH = './image/main5.jpg'
+IMAGE_PATH = './image/main.jpg'
 CAM = 'left'
 
 THRESH_HOLD = .7
@@ -161,7 +161,7 @@ THRESH_HOLD = .7
 WIDTH = 960
 HEIGHT = 960
 R_PNT = 620
-L_PNT = 380
+L_PNT = 340
 
 
 ##################################################################################################
@@ -174,7 +174,7 @@ inf = ImageInfer(weight_file = "/home/perth/Desktop/personal_project/yolov4/dark
 
 corr = inf.get_corr()
 
-print('총 박스 수 : ',len(corr))
+#print('총 박스 수 : ',len(corr))
 
 image = cv2.imread(IMAGE_PATH)
 image = cv2.resize(image, (WIDTH, HEIGHT))
@@ -182,15 +182,38 @@ image = cv2.resize(image, (WIDTH, HEIGHT))
 section_1 = split_normal_section(lr = CAM)[0]
 section_2 = split_normal_section(lr = CAM)[1]
 
-print('section_1 담배 수 : ', len(split_normal_section(lr = CAM)[0]))
-print(get_front_corr(section_1, num=3))
+section_1_count = len(split_normal_section(lr = CAM)[0])
+section_2_count = len(split_normal_section(lr = CAM)[1])
 
-print('section_2 담배 수 : ', len(split_normal_section(lr = CAM)[1]))
-print(get_front_corr(section_2, num=3))
+section_1_front_corr = get_front_corr(section_1, num=3)
+section_2_front_corr = get_front_corr(section_2, num=3)
+
+# print(section_1)
+
+# print('section_1 담배 수 : ', len(split_normal_section(lr = CAM)[0]))
+# print(get_front_corr(section_1, num=3))
+
+# print('section_2 담배 수 : ', len(split_normal_section(lr = CAM)[1]))
+# print(get_front_corr(section_2, num=3))
 
 images_corr_1 = get_front_corr(split_normal_section(lr = CAM)[0], num = 3)
 images_corr_2 = get_front_corr(split_normal_section(lr = CAM)[1], num = 3)
 
+
+final_result = {'image_name' : IMAGE_PATH,
+                'total_count' : len(corr),
+                'section_1' : { 'total_count' : section_1_count,
+                                'total_corr' : section_1,
+                                'front_count' : len(section_1_front_corr),
+                                'front_corr' : section_1_front_corr },
+                
+                'section_2' : { 'total_count' : section_2_count,
+                                'total_corr' : section_2,
+                                'front_count' : len(section_2_front_corr),
+                                'front_corr' : section_2_front_corr }
+                                }
+
+pprint.pprint(final_result)
 #cv2.rectangle(image, (s1,0), (s1+1, HEIGHT), (0,0,255), 2)
 #cv2.rectangle(image, (s2,0), (s2+1, HEIGHT), (0,0,255), 2)
 
@@ -207,7 +230,7 @@ elif CAM == 'right':
 
 
 # images = crop_image(image = image, boxes = images_corr_1, resize=(224,224))
-# images_1 = crop_image(image = image, boxes = images_corr_1, resize=(224,224))
+# #images_1 = crop_image(image = image, boxes = images_corr_1, resize=(224,224))
 # sec_1_img = cv2.vconcat([images[0], images[1], images[2]])
 
 # images = crop_image(image = image, boxes = images_corr_2, resize=(224,224))
