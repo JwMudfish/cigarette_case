@@ -155,8 +155,8 @@ def use_ocr(image):
 ##########################################################################################################
 
 # 이미지 파일 형식은 floor_lcr
-IMAGE_PATH = './image/main14.jpg'
-CAM = 'left'
+IMAGE_PATH = './image/ht_center.jpg'
+CAM = 'right'
 
 THRESH_HOLD = .7
 
@@ -175,7 +175,8 @@ inf = ImageInfer(weight_file = "/home/perth/Desktop/personal_project/yolov4/dark
                 image_path = IMAGE_PATH)
 
 corr = inf.get_corr()
-corrs = inf.get_multi_corr(image_folder = './test_images')
+print(corr)
+#corrs = inf.get_multi_corr(image_folder = './test_images')
 #print('총 박스 수 : ',len(corr))
 
 image = cv2.imread(IMAGE_PATH)

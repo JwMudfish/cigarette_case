@@ -65,7 +65,7 @@ class ImageInfer():
         darknet_image = darknet.make_image(width, height, 3)
 
         infer_images = glob(os.path.join(image_folder, '*.jpg'))
-        print(infer_images)
+        #print(infer_images)
         voc_rst = []
         for img in infer_images:
             frame = cv2.imread(img)
@@ -90,7 +90,7 @@ class ImageInfer():
 #                 thresh_hold = .7,
 #                 image_path = './image/main6.jpg')
 
-# rst = inf.get_multi_corr('./image')
+# rst = inf.get_multi_corr('./test_images')
 
 # print(rst)
 
