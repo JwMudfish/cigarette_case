@@ -21,6 +21,8 @@ import pprint
 2. ocr 넣어봄 -> 뒤집힌 케이스는 잡아내기 어려움
 
 
+이미지 파일 저장 형식 time_floor_lcr.jpg
+
 '''
 
 
@@ -153,7 +155,7 @@ def use_ocr(image):
 ##########################################################################################################
 
 # 이미지 파일 형식은 floor_lcr
-IMAGE_PATH = './image/main.jpg'
+IMAGE_PATH = './image/main14.jpg'
 CAM = 'left'
 
 THRESH_HOLD = .7
@@ -173,7 +175,7 @@ inf = ImageInfer(weight_file = "/home/perth/Desktop/personal_project/yolov4/dark
                 image_path = IMAGE_PATH)
 
 corr = inf.get_corr()
-
+corrs = inf.get_multi_corr(image_folder = './test_images')
 #print('총 박스 수 : ',len(corr))
 
 image = cv2.imread(IMAGE_PATH)
