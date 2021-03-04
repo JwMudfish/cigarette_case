@@ -21,6 +21,11 @@ import datetime
 # config_file = "/data/backup/pervinco_2020/darknet/build/darknet/x64/cfg/yolov4-custom_voc.cfg"
 # data_file = "/data/backup/pervinco_2020/darknet/build/darknet/x64/data/voc2012_obj.data"
 
+# weight_file = "/home/perth/Desktop/personal_project/1.ciga_detection/models/detection/yolov4-cigar_box_2021_last.weights"
+# config_file = '/home/perth/Desktop/personal_project/1.ciga_detection/models/detection/yolov4-cigar_box_2021.cfg'
+# data_file = '/home/perth/Desktop/personal_project/1.ciga_detection/models/detection/cigar_box_2021_obj.data'
+
+
 weight_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/yolov4-custom_cigar_box_last.weights"
 config_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/yolov4-custom_cigar_box.cfg"
 data_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/cigar_box_obj.data"

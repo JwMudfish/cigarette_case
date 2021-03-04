@@ -19,3 +19,8 @@ for i in data:
 #                 }}
 
 # print(final_result['section_1']['section_1_count'])
+
+
+WEIGHT_FILE = "/home/perth/Desktop/personal_project/1.ciga_detection/models/detection/yolov4-cigar_box_2021_last.weights"
+CONFIG_FILE = '/home/perth/Desktop/personal_project/1.ciga_detection/models/detection/yolov4-cigar_box_2021.cfg'
+DATA_FILE = '/home/perth/Desktop/personal_project/1.ciga_detection/models/detection/cigar_box_2021_obj.data'

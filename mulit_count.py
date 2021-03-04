@@ -177,7 +177,7 @@ def use_ocr(image):
 # 이미지 파일 형식은 floor_lcr
 IMAGE_PATH = './image/main14.jpg'
 #CAM = 'left'
-FLOOR_MODE = 'normal'  # ht
+FLOOR_MODE = 'ht'  # ht  #normal
 THRESH_HOLD = .7
 
 WIDTH = 960
@@ -185,17 +185,28 @@ HEIGHT = 960
 R_PNT = 620
 L_PNT = 340
 
+WEIGHT_FILE = "/home/perth/Desktop/personal_project/1.ciga_detection/models/detection/yolov4-cigar_box_2021_last.weights"
+CONFIG_FILE = '/home/perth/Desktop/personal_project/1.ciga_detection/models/detection/yolov4-cigar_box_2021.cfg'
+DATA_FILE = '/home/perth/Desktop/personal_project/1.ciga_detection/models/detection/cigar_box_2021_obj.data'
+
 
 ##################################################################################################
 
-inf = ImageInfer(weight_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/yolov4-custom_cigar_box_last.weights",
-                config_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/yolov4-custom_cigar_box.cfg",
-                data_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/cigar_box_obj.data",
+# inf = ImageInfer(weight_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/yolov4-custom_cigar_box_last.weights",
+#                 config_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/yolov4-custom_cigar_box.cfg",
+#                 data_file = "/home/perth/Desktop/personal_project/yolov4/darknet/files/cigar_box_obj.data",
+#                 thresh_hold = THRESH_HOLD,
+#                 image_path = IMAGE_PATH)
+
+inf = ImageInfer(weight_file = WEIGHT_FILE,
+                config_file = CONFIG_FILE,
+                data_file = DATA_FILE,
                 thresh_hold = THRESH_HOLD,
                 image_path = IMAGE_PATH)
 
 
-corrs = inf.get_multi_corr(image_folder = './test_images')
+
+corrs = inf.get_multi_corr(image_folder = './test_images_ht')
 #print('총 박스 수 : ',len(corr))
 print(corrs)
 for img in corrs:

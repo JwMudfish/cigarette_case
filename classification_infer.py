@@ -18,13 +18,13 @@ from collections import Counter
 MODE = 'single'  # single or dual
 
 # get file path
-project_path = '/home/perth/Desktop/personal_project/0.datasets/test'
+project_path = ''
 
 # label
-main_label_file = project_path + "/model_and_label/main_labels.txt"
+main_label_file = project_path + "./models/cls/ciga_v1_label.txt"
 
 # model
-main_model_path = project_path + "/model_and_label/mesa.h5"
+main_model_path = project_path + "./models/cls/ciga_v1.h5"
 
 ###########################################################################
 # get images
