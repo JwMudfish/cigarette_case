@@ -13,6 +13,7 @@ import time
 from tensorflow.keras.applications.efficientnet import preprocess_input
 import tensorflow as tf
 from collections import Counter
+from barcode import BarCode
 
 
 MODE = 'single'  # single or dual
@@ -28,8 +29,8 @@ main_model_path = project_path + "./models/cls/ciga_v1.h5"
 
 ###########################################################################
 # get images
-left_test_images = sorted(glob.glob(project_path + '/data/left/*.jpg'))
-right_test_images = sorted(glob.glob(project_path + '/data/right/*.jpg'))
+# left_test_images = sorted(glob.glob(project_path + '/data/left/*.jpg'))
+# right_test_images = sorted(glob.glob(project_path + '/data/right/*.jpg'))
 
 ############################################################################
 
@@ -47,7 +48,7 @@ def init_model(test_img, main_model, empty_model):
     img = cv2.cvtColor(test_img, cv2.COLOR_BGR2RGB)
     img = cv2.resize(img, (224, 224))
     img = np.expand_dims(img, axis=0)
-    empty_model.predict(img)
+    #empty_model.predict(img)
     main_model.predict(img)
 
 
@@ -129,14 +130,7 @@ def get_label(label_path):
     return class_name
 
 # get label name
-EM_CLASS_NAMES = get_label(binary_label_file)
 CLASS_NAMES = get_label(main_label_file)
-
-# get box corr
-rm_boxes = get_boxes(right_main_xml)
-rem_boxes = get_boxes(right_empty_xml)
-lm_boxes = get_boxes(left_main_xml)
-lem_boxes = get_boxes(left_empty_xml)
 
 
 # main_total_images = merge_left_right(left_images = left_test_images, right_images = right_test_images)
@@ -168,30 +162,111 @@ if MODE == 'dual':
 
 #### single mode #############################################
 elif MODE == 'single':
-    pog = 'watermelon'
-    main_final = make_single_batch(f'{project_path}/data/single/{pog}')
-    print(main_final.shape)
-    # 모델 불러오기
-    main_model = tf.keras.models.load_model(main_model_path)
+    # pog = 'watermelon'
+    # main_final = make_single_batch(f'{project_path}/data/single/{pog}')
+    # print(main_final.shape)
+    # # 모델 불러오기
+    # main_model = tf.keras.models.load_model(main_model_path)
     
-    main_pred = main_model.predict(main_final)
+    # main_pred = main_model.predict(main_final)
 
-    os.system('clear')
-    rst = []
-    for i in main_pred:
-        rst.append(CLASS_NAMES[np.argmax(i)])
+    # os.system('clear')
+    # rst = []
+    # for i in main_pred:
+    #     rst.append(CLASS_NAMES[np.argmax(i)])
 
-    print(Counter(rst))
+    # print(Counter(rst))
 
 ############################################################
 
+#     info = {'direction': 'right',
+#  'floor': '7',
+#  'image_name': './test_images/time_7_right.jpg',
+#  'section_1': {'front_corr': [(143, 713, 403, 867),
+#                               (195, 578, 436, 688),
+#                               (206, 465, 406, 548)],
+#                'front_count': 3,
+#                'total_corr': [(327, 62, 449, 77),
+#                               (307, 98, 432, 118),
+#                               (275, 186, 420, 210),
+#                               (297, 137, 431, 162),
+#                               (265, 296, 436, 351),
+#                               (230, 375, 414, 436),
+#                               (281, 234, 439, 276),
+#                               (143, 713, 403, 867),
+#                               (195, 578, 436, 688),
+#                               (206, 465, 406, 548)],
+#                'total_count': 10},
+#  'section_2': {'front_corr': [(490, 684, 801, 766),
+#                               (487, 595, 768, 662),
+#                               (450, 531, 707, 573)],
+#                'front_count': 3,
+#                'total_corr': [(477, 174, 645, 187),
+#                               (473, 139, 630, 157),
+#                               (466, 211, 642, 232),
+#                               (471, 287, 673, 317),
+#                               (458, 458, 701, 497),
+#                               (462, 248, 655, 274),
+#                               (450, 531, 707, 573),
+#                               (485, 395, 708, 428),
+#                               (459, 342, 676, 373),
+#                               (487, 595, 768, 662),
+#                               (490, 684, 801, 766)],
+#                'total_count': 11},
+#  'total_count': 31}
+
+# ht
+    info = {'direction': 'center',
+ 'floor': '1',
+ 'image_name': './test_images_ht/ht_1_center.jpg',
+ 'section_1': {'front_corr': [(143, 850, 901, 933),
+                              (139, 754, 909, 835),
+                              (184, 668, 862, 743)],
+               'front_count': 3,
+               'total_corr': [(143, 850, 901, 933),
+                              (139, 754, 909, 835),
+                              (184, 668, 862, 743),
+                              (232, 463, 782, 519),
+                              (252, 410, 764, 459),
+                              (225, 524, 810, 582),
+                              (273, 317, 739, 354),
+                              (293, 237, 713, 269),
+                              (257, 362, 756, 402),
+                              (284, 275, 726, 309),
+                              (202, 591, 840, 657)],
+               'total_count': 11},
+ 'total_count': 13}
 
 
 
+    front_len = 3
+    #num = 2    
+    main_model = tf.keras.models.load_model('./models/cls/ciga_v1.h5')
 
-# cv2.imshow('ddd',main_final[0])
-# cv2.imshow('ddda',cv2.cvtColor(main_final[0], cv2.COLOR_BGR2RGB))
-# cv2.waitKey()
-# cv2.destroyAllWindows()
+    image = cv2.imread(info['image_name'])
+    image = cv2.resize(image, (960, 960))
+    images = crop_image(image, info['section_1']['front_corr'], (224, 224))
+    ori_images = crop_image(image, info['section_1']['front_corr'], (0, 0))
+
+    for num in range(front_len):
+        img = np.expand_dims(images[num], axis=0)
+        img = preprocess_input(img)
+        
+        main_pred = main_model.predict(img)
+        
+        rst = CLASS_NAMES[np.argmax(main_pred)]
+        if rst == 'bottom':
+            rst = BarCode(ori_images[num]).decode()
+
+        os.system('clear')
+        print(rst)
+        
+        cv2.namedWindow('ddd', cv2.WINDOW_NORMAL)
+        cv2.resizeWindow('ddd', 960,960)
+
+        cv2.imshow('ddd',images[num])
+        #cv2.imshow('ddda',cv2.cvtColor(main_final[0], cv2.COLOR_BGR2RGB))
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 

@@ -178,7 +178,7 @@ def use_ocr(image):
 IMAGE_PATH = './image/main14.jpg'
 #CAM = 'left'
 FLOOR_MODE = 'ht'  # ht  #normal
-THRESH_HOLD = .7
+THRESH_HOLD = .5
 
 WIDTH = 960
 HEIGHT = 960
@@ -216,8 +216,6 @@ for img in corrs:
 
     else:
         CAM = 'right'
-
-
 
     if FLOOR_MODE == 'normal':    
         image = cv2.imread(img['image_name'])
@@ -300,3 +298,4 @@ for img in corrs:
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
