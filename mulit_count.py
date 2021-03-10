@@ -6,6 +6,8 @@ from ctypes import *
 import random
 from tst import ImageInfer
 import pprint
+from classification import Classification_infer
+import tensorflow as tf
 
 '''
 <카운트로직>
@@ -172,6 +174,12 @@ def use_ocr(image):
     result = reader.readtext(image)
     return result
 
+def load_model(model_path):
+    os.environ["CUDA_VISIBLE_DEVICES"]="0"
+    main_model = tf.keras.models.load_model(model_path)
+    
+    return main_model
+
 ##########################################################################################################
 
 # 이미지 파일 형식은 floor_lcr
@@ -189,6 +197,10 @@ WEIGHT_FILE = "/home/perth/Desktop/personal_project/1.ciga_detection/models/dete
 CONFIG_FILE = '/home/perth/Desktop/personal_project/1.ciga_detection/models/detection/yolov4-cigar_box_2021.cfg'
 DATA_FILE = '/home/perth/Desktop/personal_project/1.ciga_detection/models/detection/cigar_box_2021_obj.data'
 
+main_label_file = "./models/cls/ciga_v1_label.txt"
+
+# model
+main_model_path = "./models/cls/ciga_v1.h5"
 
 ##################################################################################################
 
@@ -206,7 +218,10 @@ inf = ImageInfer(weight_file = WEIGHT_FILE,
 
 
 
+
 corrs = inf.get_multi_corr(image_folder = './test_images_ht')
+cls_model = load_model(model_path = main_model_path)
+
 #print('총 박스 수 : ',len(corr))
 print(corrs)
 for img in corrs:
@@ -271,11 +286,16 @@ for img in corrs:
                                         'front_count' : len(section_1_front_corr),
                                         'front_corr' : section_1_front_corr }}
 
+
+    C = Classification_infer(image = image,
+                            info = final_result,
+                            model_path = main_model_path,
+                            label_path = main_label_file,
+                            mode = FLOOR_MODE)
+    os.system('clear')
+    C.inference(model = cls_model)
     pprint.pprint(final_result)
     print('-' * 80)
-    #cv2.rectangle(image, (s1,0), (s1+1, HEIGHT), (0,0,255), 2)
-    #cv2.rectangle(image, (s2,0), (s2+1, HEIGHT), (0,0,255), 2)
-
 
     ####################  Painting Section  ###################################
     if CAM == 'left':

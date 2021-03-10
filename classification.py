@@ -16,15 +16,6 @@ from collections import Counter
 from barcode import BarCode
 
 
-MODE = 'single'  # single or dual
-# get file path
-project_path = ''
-
-# label
-main_label_file = project_path + "./models/cls/ciga_v1_label.txt"
-
-# model
-main_model_path = project_path + "./models/cls/ciga_v1.h5"
 
 
 class Classification_infer():
@@ -39,6 +30,7 @@ class Classification_infer():
     def load_model(self):
         os.environ["CUDA_VISIBLE_DEVICES"]="0"
         main_model = tf.keras.models.load_model(self.model_path)
+        
         return main_model
 
     # gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -69,8 +61,8 @@ class Classification_infer():
         return images
 
 
-    def get_label(self, label_path):
-        df = pd.read_csv(main_label_file, sep = ' ', index_col=False, header=None)
+    def get_label(self):
+        df = pd.read_csv(self.label_path, sep = ' ', index_col=False, header=None)
         class_name = df[0].tolist()
         class_name = sorted(class_name)
         return class_name
@@ -87,16 +79,16 @@ class Classification_infer():
             if rst == 'bottom':
                 rst = BarCode(ori_image).decode()
 
-            os.system('clear')
+            #os.system('clear')
             final_result.append(rst)
         return final_result
 
-    def inference(self):
+    def inference(self, model):
 
         print('Model Load.................')
-        main_model = self.load_model()
+        main_model = model
         # get label name
-        CLASS_NAMES = self.get_label(self.label_path)
+        CLASS_NAMES = self.get_label()
 
         #if self.mode == 'ht':
         
@@ -107,34 +99,7 @@ class Classification_infer():
         if self.mode == 'ht':
             images = self.crop_image(image, self.info['section_1']['front_corr'], (224, 224))
             ori_images = self.crop_image(image, self.info['section_1']['front_corr'], (0, 0))
-            #final_result = []
 
-            # for num in range(front_len):
-            #     img = np.expand_dims(images[num], axis=0)
-            #     #img = preprocess_input(img)
-                
-            #     main_pred = main_model.predict(img)
-                
-            #     rst = CLASS_NAMES[np.argmax(main_pred)]
-            #     if rst == 'bottom':
-            #         rst = BarCode(ori_images[num]).decode()
-
-            #     os.system('clear')
-            #     final_result.append(rst)
-        #     for image, ori_image in zip(images, ori_images):
-        #         img = np.expand_dims(image, axis=0)
-        #         #img = preprocess_input(img)
-                
-        #         main_pred = main_model.predict(img)
-                
-        #         rst = CLASS_NAMES[np.argmax(main_pred)]
-        #         if rst == 'bottom':
-        #             rst = BarCode(ori_image).decode()
-
-        #         os.system('clear')
-        #         final_result.append(rst)
-
-        #     print('result : ', final_result)
             final_result = self.predict(main_model = main_model, 
                                         CLASS_NAMES = CLASS_NAMES, 
                                         images = images, 
@@ -154,7 +119,7 @@ class Classification_infer():
             sec1_result = self.predict(main_model = main_model, 
                                         CLASS_NAMES = CLASS_NAMES, 
                                         images = images_sec1, 
-                                        ori_images = ori_images_sec2)
+                                        ori_images = ori_images_sec1)
 
             sec2_result = self.predict(main_model = main_model, 
                                         CLASS_NAMES = CLASS_NAMES, 
@@ -165,47 +130,60 @@ class Classification_infer():
             return final_result
 
 
-MODE = 'ht'  # single or dual
+#MODE = 'ht'  # single or dual
 
-info = {'direction': 'center',
- 'floor': '1',
- 'image_name': './test_images_ht/ht_1_center.jpg',
- 'section_1': {'front_corr': [(143, 850, 901, 933),
-                              (139, 754, 909, 835),
-                              (184, 668, 862, 743)],
-               'front_count': 3,
-               'total_corr': [(143, 850, 901, 933),
-                              (139, 754, 909, 835),
-                              (184, 668, 862, 743),
-                              (232, 463, 782, 519),
-                              (252, 410, 764, 459),
-                              (225, 524, 810, 582),
-                              (273, 317, 739, 354),
-                              (293, 237, 713, 269),
-                              (257, 362, 756, 402),
-                              (284, 275, 726, 309),
-                              (202, 591, 840, 657)],
-               'total_count': 11},
- 'total_count': 13}
+# info = {'direction': 'center',
+#  'floor': '1',
+#  'image_name': './test_images_ht/ht_1_center.jpg',
+#  'section_1': {'front_corr': [(143, 850, 901, 933),
+#                               (139, 754, 909, 835),
+#                               (184, 668, 862, 743)],
+#                'front_count': 3,
+#                'total_corr': [(143, 850, 901, 933),
+#                               (139, 754, 909, 835),
+#                               (184, 668, 862, 743),
+#                               (232, 463, 782, 519),
+#                               (252, 410, 764, 459),
+#                               (225, 524, 810, 582),
+#                               (273, 317, 739, 354),
+#                               (293, 237, 713, 269),
+#                               (257, 362, 756, 402),
+#                               (284, 275, 726, 309),
+#                               (202, 591, 840, 657)],
+#                'total_count': 11},
+#  'total_count': 13}
+
+# info = {'direction': 'right',
+#  'floor': '8',
+#  'image_name': './test_images/time_8_right.jpg',
+#  'section_1': {'front_corr': [],
+#                'front_count': 0,
+#                'total_corr': [],
+#                'total_count': 0},
+#  'section_2': {'front_corr': [(471, 689, 738, 843), (476, 558, 703, 678)],
+#                'front_count': 2,
+#                'total_corr': [(471, 689, 738, 843), (476, 558, 703, 678)],
+#                'total_count': 2},
+#  'total_count': 4}
 
 
 
-# get file path
-project_path = ''
-image = cv2.imread(info['image_name'])
-#print(image)
-# label
-main_label_file = "./models/cls/ciga_v1_label.txt"
+# MODE = 'normal'  # single or dual
 
-# model
-main_model_path = "./models/cls/ciga_v1.h5"
+# # get file path
+# image = cv2.imread(info['image_name'])
+# # label
+# main_label_file = "./models/cls/ciga_v1_label.txt"
 
-C = Classification_infer(image = image,
-                        info = info,
-                        model_path = main_model_path,
-                        label_path = main_label_file,
-                        mode = MODE)
-C.inference()
+# # model
+# main_model_path = "./models/cls/ciga_v1.h5"
+
+# C = Classification_infer(image = image,
+#                         info = info,
+#                         model_path = main_model_path,
+#                         label_path = main_label_file,
+#                         mode = MODE)
+# C.inference()
 
 # main_label_file = project_path + "./models/cls/ciga_v1_label.txt"
 
