@@ -314,7 +314,7 @@ for img in corrs:
 
     # cv2.namedWindow('cc', cv2.WINDOW_NORMAL)
     # cv2.resizeWindow('cc', 800,600)
-    # cv2.imshow('cc', concated_img)
+    ## cv2.imshow('cc', concated_img)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
