@@ -126,7 +126,7 @@ class Classification_infer():
                                         images = images_sec2, 
                                         ori_images = ori_images_sec2)
             final_result.extend([sec1_result, sec2_result])
-            print(final_result)
+            print('front_cls_result : ', final_result)
             return final_result
 
 

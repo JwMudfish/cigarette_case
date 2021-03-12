@@ -135,7 +135,7 @@ def split_normal_section(lr, floor_mode):
                     if tf == False:
                         section_1.append(i)
 
-            elif lr == 'center':  # 히츠 중앙카메라일 경우 로직 추가해야 함
+            elif lr == 'center':
                 pass
         return section_1, section_2
 
@@ -187,6 +187,7 @@ IMAGE_PATH = './image/main14.jpg'
 #CAM = 'left'
 FLOOR_MODE = 'ht'  # ht  #normal
 THRESH_HOLD = .5
+FRONT_CNT = 3
 
 WIDTH = 960
 HEIGHT = 960
@@ -219,7 +220,7 @@ inf = ImageInfer(weight_file = WEIGHT_FILE,
 
 
 
-corrs = inf.get_multi_corr(image_folder = './test_images_ht')
+corrs = inf.get_multi_corr(image_folder = './test_images_cnt')
 cls_model = load_model(model_path = main_model_path)
 
 #print('총 박스 수 : ',len(corr))
@@ -242,11 +243,11 @@ for img in corrs:
         section_1_count = len(split_normal_section(lr = CAM, floor_mode = FLOOR_MODE)[0])
         section_2_count = len(split_normal_section(lr = CAM, floor_mode = FLOOR_MODE)[1])
 
-        section_1_front_corr = get_front_corr(section_1, num=3)
-        section_2_front_corr = get_front_corr(section_2, num=3)
+        section_1_front_corr = get_front_corr(section_1, num=FRONT_CNT)
+        section_2_front_corr = get_front_corr(section_2, num=FRONT_CNT)
 
-        images_corr_1 = get_front_corr(split_normal_section(lr = CAM, floor_mode = FLOOR_MODE)[0], num = 3)
-        images_corr_2 = get_front_corr(split_normal_section(lr = CAM, floor_mode = FLOOR_MODE)[1], num = 3)
+        images_corr_1 = get_front_corr(split_normal_section(lr = CAM, floor_mode = FLOOR_MODE)[0], num = FRONT_CNT)
+        images_corr_2 = get_front_corr(split_normal_section(lr = CAM, floor_mode = FLOOR_MODE)[1], num = FRONT_CNT)
 
         # Redis 붙이면 달라질 수 있음......
         final_result = {'image_name' : img['image_name'],
@@ -272,9 +273,9 @@ for img in corrs:
 
         section_1_count = len(split_normal_section(lr = CAM, floor_mode = FLOOR_MODE))
 
-        section_1_front_corr = get_front_corr(section_1, num=3)
+        section_1_front_corr = get_front_corr(section_1, num=FRONT_CNT)
 
-        images_corr_1 = get_front_corr(split_normal_section(lr = CAM, floor_mode = FLOOR_MODE), num = 3)
+        images_corr_1 = get_front_corr(split_normal_section(lr = CAM, floor_mode = FLOOR_MODE), num = FRONT_CNT)
 
         # Redis 붙이면 달라질 수 있음......
         final_result = {'image_name' : img['image_name'],
