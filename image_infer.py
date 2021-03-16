@@ -63,6 +63,7 @@ voc = []
 for label, prob, corr in detections:
     i = bbox2points(corr)
     voc.append(i)
+    print(corr)
     #cv2.rectangle(image, (i[0],i[1]), (i[2], i[3]), (0,0,255), 2)
 
 print(voc)
