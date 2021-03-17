@@ -218,13 +218,16 @@ inf = ImageInfer(weight_file = WEIGHT_FILE,
                 image_path = IMAGE_PATH)
 
 
-
-
-corrs = inf.get_multi_corr(image_folder = './test_images_cnt')
+corrs = inf.get_multi_corr(image_folder = './test_images_ht')
 cls_model = load_model(model_path = main_model_path)
+# C = Classification_infer(image = image,
+#                         info = final_result,
+#                         model_path = main_model_path,
+#                         label_path = main_label_file,
+#                         mode = FLOOR_MODE)
 
 #print('총 박스 수 : ',len(corr))
-print(corrs)
+#print(corrs)
 for img in corrs:
     corr = img['corr']
     if img['image_name'].split('_')[-1] == 'left.jpg':
@@ -264,7 +267,16 @@ for img in corrs:
                                         'front_count' : len(section_2_front_corr),
                                         'front_corr' : section_2_front_corr }
                                         }
-
+        C = Classification_infer(image = image,
+                                info = final_result,
+                                model_path = main_model_path,
+                                label_path = main_label_file,
+                                mode = FLOOR_MODE)
+        cls_result = C.inference(model = cls_model)
+        
+        final_result['section_1']['front_result'] = cls_result[0]
+        final_result['section_2']['front_result'] = cls_result[1]
+        
     else:
         image = cv2.imread(img['image_name'])
         image = cv2.resize(image, (WIDTH, HEIGHT))
@@ -286,15 +298,23 @@ for img in corrs:
                                         'total_corr' : section_1,
                                         'front_count' : len(section_1_front_corr),
                                         'front_corr' : section_1_front_corr }}
+        
+        C = Classification_infer(image = image,
+                                info = final_result,
+                                model_path = main_model_path,
+                                label_path = main_label_file,
+                                mode = FLOOR_MODE)
+        cls_result = C.inference(model = cls_model)
+        
+        final_result['section_1']['front_result'] = cls_result
 
-
-    C = Classification_infer(image = image,
-                            info = final_result,
-                            model_path = main_model_path,
-                            label_path = main_label_file,
-                            mode = FLOOR_MODE)
+    # C = Classification_infer(image = image,
+    #                         info = final_result,
+    #                         model_path = main_model_path,
+    #                         label_path = main_label_file,
+    #                         mode = FLOOR_MODE)
     os.system('clear')
-    C.inference(model = cls_model)
+    # C.inference(model = cls_model)
     pprint.pprint(final_result)
     print('-' * 80)
 

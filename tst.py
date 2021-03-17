@@ -55,7 +55,6 @@ class ImageInfer():
         for label, prob, corr in detections:
             i = self.bbox2points(corr)
             voc.append(i)
-
         return voc
 
     def get_multi_corr(self, image_folder):
