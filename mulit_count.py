@@ -78,7 +78,7 @@ def crop_image(image, boxes, save_path=None, labels=None, resize=None):
         return images
 
 
-# 개수 카운트 해야하는 영역만 골라서 담기
+# 개수 카운트 해야하는 영역만 골라서 담기~
 def in_line(x,y,lr):
     # x = x
     # y = y
