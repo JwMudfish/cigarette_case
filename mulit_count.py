@@ -220,7 +220,7 @@ inf = ImageInfer(weight_file = WEIGHT_FILE,
 
 corrs = inf.get_multi_corr(image_folder = './test_images_ht')
 cls_model = load_model(model_path = main_model_path)
-# C = Classification_infer(image = image,
+## C = Classification_infer(image = image,
 #                         info = final_result,
 #                         model_path = main_model_path,
 #                         label_path = main_label_file,
