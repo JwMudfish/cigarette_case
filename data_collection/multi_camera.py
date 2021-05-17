@@ -161,7 +161,7 @@ while True:
 
     folder_text_size = -60
     h = 100
-    for i in file_count(save_dir):
+    for i in file_count(save_dir): 
         
         cv2.putText(blank_image_down, f'{i[0]} : {i[1]} /', (folder_text_size + 70, h), cv2.FONT_HERSHEY_DUPLEX, 1, (255,255,255), 1, cv2.LINE_AA)    
         folder_len = cv2.getTextSize(text=str(f'{i[0]} : {i[1]} / '), fontFace=cv2.FONT_HERSHEY_DUPLEX, fontScale=1, thickness=2)[0][0]

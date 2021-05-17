@@ -56,7 +56,7 @@ for img in image_list:
 
     xml_name = img.split('/')[-1].split('.')[0] + '.xml'
     for xml in get_boxes(xml_path + '/' + xml_name):
-        #print(xml)
+        ##print(xml)
         # for i in xml:
         #     print(i)
         b = xml['bndbox']
